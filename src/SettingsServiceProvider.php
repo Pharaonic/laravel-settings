@@ -28,7 +28,5 @@ class SettingsServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/database/migrations/2021_02_01_000032_create_settings_table.php'             => database_path('migrations/2021_02_01_000032_create_settings_table.php'),
         ], ['pharaonic', 'laravel-settings']);
-
-        // 
     }
 }
