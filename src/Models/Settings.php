@@ -3,15 +3,13 @@
 namespace Pharaonic\Laravel\Settings\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Pharaonic\Laravel\Translatable\Translatable;
-use Pharaonic\Laravel\Users\Traits\HasPermissions;
 
 /**
  * @property integer $id
  * @property string $name
  * @property string|null $value
- * @property string $modelable_type
- * @property integer $modelable_id
+ * @property string|null $modelable_type
+ * @property string|null $modelable_id
  * @property Carbon $created_at
  * @property Carbon $updated_at
  *
