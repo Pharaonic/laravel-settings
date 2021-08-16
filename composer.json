@@ -1,0 +1,41 @@
+{
+    "name": "pharaonic/laravel-settings",
+    "description": "Store and retrieve settings for model objects in Laravel.",
+    "keywords": [
+        "laravel settings",
+        "settings",
+        "info",
+        "laravel",
+        "php"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Moamen Eltouny (Raggi)",
+            "email": "raggi@raggitech.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.2",
+        "laravel/framework": ">=6.0",
+        "pharaonic/laravel-agents-detector": ">=1.0.3",
+        "pharaonic/laravel-translatable": ">=1.0.0"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Pharaonic\\Laravel\\Settings\\SettingsServiceProvider"
+            ]
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Pharaonic\\Laravel\\Settings\\": "src"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
