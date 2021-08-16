@@ -13,7 +13,7 @@
 
 <br>
 
-<pre align="center">Store and retrieve settings for model objects in Laravel.</pre>
+<pre align="center">Store and retrieve settings generally or for model objects in Laravel.</pre>
 
 
 ## Documentation
