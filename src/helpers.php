@@ -1,5 +1,7 @@
 <?php
 
+use Pharaonic\Laravel\Settings\Classes\Settings;
+
 /**
  * Getting Settings Object
  *
@@ -7,5 +9,8 @@
  */
 function settings()
 {
+    if (!app()->has('Settings'))
+        app()->instance('Settings', new Settings);
+
     return app('Settings');
 }
