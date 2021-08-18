@@ -52,7 +52,7 @@ final class Settings
      */
     public function __get($name)
     {
-        if (!$this->data[$name]) return;
+        if (!isset($this->data[$name])) return;
 
         return $this->data[$name]->value;
     }
