@@ -40,7 +40,7 @@ final class Settings
             $this->model = $model;
             $this->data = $data;
         } else {
-            $this->data = ModelsSettings::whereNull('modelable_type')->get()->keyBy('name');
+            $this->data = ModelsSettings::whereNull('settingable_type')->get()->keyBy('name');
         }
     }
 
@@ -113,8 +113,8 @@ final class Settings
                 $obj->value = $values[1] ?? null;
 
                 if ($this->model) {
-                    $obj->modelable_type    = get_class($this->model);
-                    $obj->modelable_id      = $this->model->getKey();
+                    $obj->settingable_type    = get_class($this->model);
+                    $obj->settingable_id      = $this->model->getKey();
                 }
 
                 $this->data->put($values[0], $obj);

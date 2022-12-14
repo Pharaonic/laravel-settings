@@ -44,9 +44,9 @@ trait Settingable
      * Get the user settings.
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
-    private function getSettingsColelction()
+    private function settingables()
     {
-        return $this->morphMany(Settings::class, 'modelable');
+        return $this->morphMany(Settings::class, 'settingable');
     }
 
     /**
@@ -58,7 +58,7 @@ trait Settingable
     {
         if ($this->settings_data) return $this->settings_data;
 
-        return $this->settings_data = new ClassesSettings($this, $this->getSettingsColelction()->get()->keyBy('name'));
+        return $this->settings_data = new ClassesSettings($this, $this->settingables()->get()->keyBy('name'));
     }
 
     /**
@@ -68,6 +68,6 @@ trait Settingable
      */
     public function clearSettings()
     {
-        return $this->getSettingsColelction()->delete() > 0;
+        return $this->settingables()->delete() > 0;
     }
 }
