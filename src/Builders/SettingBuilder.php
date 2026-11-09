@@ -31,6 +31,8 @@ use Pharaonic\Laravel\Settings\Support\ValueCodec;
  * getValue(), setValue(), allValues() and the rest. They only run on a plain
  * for() scope, optionally with fallbackTo() scopes and orderBy(); any other
  * constraint throws UnscopedSettingQueryException rather than being ignored.
+ *
+ * @extends Builder<Setting>
  */
 class SettingBuilder extends Builder
 {
