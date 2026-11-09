@@ -89,6 +89,53 @@ class SettingBuilder extends Builder
     }
 
     /**
+     * A model made by a for() scope, through make(), create(), firstOrNew(),
+     * firstOrCreate(), updateOrCreate() or forceCreate(), belongs to that
+     * scope, and saving it with another identifier throws. Eloquent does not
+     * carry where() constraints into new models, so without this a scoped
+     * create() would land in the global scope, or in any identifier passed as
+     * an attribute.
+     *
+     * @param  array<string, mixed>  $attributes
+     * @return Setting
+     *
+     * @throws InvalidIdentifierException when the attributes name another scope
+     */
+    public function newModelInstance($attributes = [])
+    {
+        if ($this->scopeIdentifier === null) {
+            return self::setting(parent::newModelInstance($attributes));
+        }
+
+        $given = $attributes['identifier'] ?? null;
+
+        if ($given !== null && $given !== $this->scopeIdentifier) {
+            throw Setting::otherScope($this->scopeIdentifier);
+        }
+
+        $attributes['identifier'] = $this->scopeIdentifier;
+        $model = self::setting(parent::newModelInstance($attributes));
+        $model->restrictToScope($this->scopeIdentifier);
+
+        return $model;
+    }
+
+    /**
+     * Create through this builder, so a for() scope applies; Eloquent's own
+     * forceCreate() creates through a new, unscoped query.
+     *
+     * @param  array<string, mixed>  $attributes
+     * @return Setting
+     */
+    public function forceCreate(array $attributes)
+    {
+        $model = $this->newModelInstance();
+        $model->forceFill($attributes)->save();
+
+        return $model;
+    }
+
+    /**
      * Add the global scope as the next fallback; the same as fallbackTo(null).
      */
     public function fallbackToGlobal(): static
@@ -558,6 +605,18 @@ class SettingBuilder extends Builder
 
             return $callback();
         }, self::ATTEMPTS);
+    }
+
+    /**
+     * The model Eloquent made for this builder, which is always a Setting.
+     */
+    private static function setting(object $model): Setting
+    {
+        if (! $model instanceof Setting) {
+            throw new LogicException('SettingBuilder only makes Setting models.');
+        }
+
+        return $model;
     }
 
     /**

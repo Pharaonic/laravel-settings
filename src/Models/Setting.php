@@ -10,6 +10,7 @@ use LogicException;
 use Pharaonic\Laravel\Settings\Builders\SettingBuilder;
 use Pharaonic\Laravel\Settings\Enums\CastingPolicy;
 use Pharaonic\Laravel\Settings\Enums\SettingType;
+use Pharaonic\Laravel\Settings\Exceptions\InvalidIdentifierException;
 use Pharaonic\Laravel\Settings\Exceptions\SettingDefinitionException;
 use Pharaonic\Laravel\Settings\Exceptions\SettingTypeMismatchException;
 use Pharaonic\Laravel\Settings\Support\Definition;
@@ -79,6 +80,11 @@ class Setting extends Model
      * Set by retype() for the one save that may change type and nullability.
      */
     private bool $retyping = false;
+
+    /**
+     * The scope of the for() builder that made this model, if any.
+     */
+    private ?string $restrictedScope = null;
 
     protected static function boot()
     {
@@ -187,6 +193,27 @@ class Setting extends Model
     }
 
     /**
+     * Refuse to save this model in any scope but the given one.
+     *
+     * @internal Called by SettingBuilder for models it makes.
+     */
+    public function restrictToScope(string $identifier): void
+    {
+        $this->restrictedScope = $identifier;
+    }
+
+    /**
+     * @internal
+     */
+    public static function otherScope(string $identifier): InvalidIdentifierException
+    {
+        return new InvalidIdentifierException(sprintf(
+            'A setting made by the [%s] scope cannot be saved with another identifier.',
+            $identifier
+        ));
+    }
+
+    /**
      * Check and normalize the row before it is written.
      *
      * @throws SettingTypeMismatchException
@@ -200,6 +227,10 @@ class Setting extends Model
 
         if ($this->exists && ($this->isDirty('identifier') || $this->isDirty('key'))) {
             throw new LogicException("The identifier and key of the stored setting [{$key}] cannot change; create another setting instead.");
+        }
+
+        if ($this->restrictedScope !== null && $identifier !== $this->restrictedScope) {
+            throw self::otherScope($this->restrictedScope);
         }
 
         $this->attributes['identifier'] = $identifier;
