@@ -1,76 +1,50 @@
 <?php
 
-namespace Pharaonic\Laravel\Settings\Tests\Feature;
-
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Pharaonic\Laravel\Settings\Builders\SettingBuilder;
 use Pharaonic\Laravel\Settings\SettingsServiceProvider;
-use Pharaonic\Laravel\Settings\Tests\TestCase;
 
-final class ServiceProviderTest extends TestCase
-{
-    public function test_it_merges_the_configuration_under_pharaonic_settings(): void
-    {
-        $this->assertSame('settings', config('pharaonic.settings.table'));
-        $this->assertNull(config('pharaonic.settings.connection'));
-        $this->assertSame('strict', config('pharaonic.settings.types.casting'));
-        $this->assertTrue(config('pharaonic.settings.cache.enabled'));
-        $this->assertNull(config('pharaonic.settings.cache.ttl'));
-        $this->assertFalse(config('pharaonic.settings.models.purge_on_force_delete'));
-        $this->assertSame([], config('pharaonic.settings.definitions'));
-    }
+dataset('service_provider_configTags', function () {
+    return [['pharaonic'], ['laravel-settings'], ['pharaonic-config'], ['settings-config']];
+});
 
-    public function test_it_loads_the_migration_without_publishing_it(): void
-    {
-        $this->assertTrue(Schema::hasTable('settings'));
-        $this->assertEqualsCanonicalizing(
-            ['id', 'identifier', 'key', 'type', 'nullable', 'value', 'created_at', 'updated_at'],
-            Schema::getColumnListing('settings')
-        );
-    }
+dataset('service_provider_migrationTags', function () {
+    return [['pharaonic'], ['laravel-settings'], ['pharaonic-migrations'], ['settings-migrations']];
+});
 
-    /**
-     * @dataProvider configTags
-     */
-    public function test_it_publishes_the_configuration_under_its_tags(string $tag): void
-    {
-        $this->assertContains(config_path('pharaonic/settings.php'), ServiceProvider::pathsToPublish(SettingsServiceProvider::class, $tag));
-    }
+test('it merges the configuration under pharaonic settings', function () {
+    $this->assertSame('settings', config('pharaonic.settings.table'));
+    $this->assertNull(config('pharaonic.settings.connection'));
+    $this->assertSame('strict', config('pharaonic.settings.types.casting'));
+    $this->assertTrue(config('pharaonic.settings.cache.enabled'));
+    $this->assertNull(config('pharaonic.settings.cache.ttl'));
+    $this->assertFalse(config('pharaonic.settings.models.purge_on_force_delete'));
+    $this->assertSame([], config('pharaonic.settings.definitions'));
+});
 
-    /**
-     * @return array<int, array{string}>
-     */
-    public static function configTags(): array
-    {
-        return [['pharaonic'], ['laravel-settings'], ['pharaonic-config'], ['settings-config']];
-    }
+test('it loads the migration without publishing it', function () {
+    $this->assertTrue(Schema::hasTable('settings'));
+    $this->assertEqualsCanonicalizing(
+        ['id', 'identifier', 'key', 'type', 'nullable', 'value', 'created_at', 'updated_at'],
+        Schema::getColumnListing('settings')
+    );
+});
 
-    /**
-     * @dataProvider migrationTags
-     */
-    public function test_it_publishes_the_migration_under_its_tags(string $tag): void
-    {
-        $this->assertContains(database_path('migrations'), ServiceProvider::pathsToPublish(SettingsServiceProvider::class, $tag));
-    }
+test('it publishes the configuration under its tags', function (string $tag) {
+    $this->assertContains(config_path('pharaonic/settings.php'), ServiceProvider::pathsToPublish(SettingsServiceProvider::class, $tag));
+})->with('service_provider_configTags');
 
-    /**
-     * @return array<int, array{string}>
-     */
-    public static function migrationTags(): array
-    {
-        return [['pharaonic'], ['laravel-settings'], ['pharaonic-migrations'], ['settings-migrations']];
-    }
+test('it publishes the migration under its tags', function (string $tag) {
+    $this->assertContains(database_path('migrations'), ServiceProvider::pathsToPublish(SettingsServiceProvider::class, $tag));
+})->with('service_provider_migrationTags');
 
-    public function test_it_registers_the_legacy_migration_command(): void
-    {
-        $this->assertArrayHasKey('settings:migrate-legacy', Artisan::all());
-    }
+test('it registers the legacy migration command', function () {
+    $this->assertArrayHasKey('settings:migrate-legacy', Artisan::all());
+});
 
-    public function test_it_defines_the_settings_helper(): void
-    {
-        $this->assertTrue(function_exists('settings'));
-        $this->assertInstanceOf(SettingBuilder::class, settings());
-    }
-}
+test('it defines the settings helper', function () {
+    $this->assertTrue(function_exists('settings'));
+    $this->assertInstanceOf(SettingBuilder::class, settings());
+});
