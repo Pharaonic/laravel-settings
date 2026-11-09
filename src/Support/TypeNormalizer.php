@@ -23,7 +23,7 @@ final class TypeNormalizer
     /**
      * @throws SettingTypeMismatchException
      */
-    public static function normalize(mixed $value, string $type, string $policy, string $key, string $identifier): mixed
+    public static function normalize(mixed $value, SettingType $type, CastingPolicy $policy, string $key, string $identifier): mixed
     {
         if (SettingType::of($value) === $type && ! ($type === SettingType::FLOAT && is_float($value) && ! is_finite($value))) {
             return $value;
@@ -37,7 +37,7 @@ final class TypeNormalizer
             }
         }
 
-        throw SettingTypeMismatchException::value($key, $identifier, $type, get_debug_type($value), $policy);
+        throw SettingTypeMismatchException::value($key, $identifier, $type->value, get_debug_type($value), $policy->value);
     }
 
     /**
@@ -46,7 +46,7 @@ final class TypeNormalizer
      *
      * @return array{0: mixed}|null
      */
-    private static function convert(mixed $value, string $type): ?array
+    private static function convert(mixed $value, SettingType $type): ?array
     {
         switch ($type) {
             case SettingType::INTEGER:

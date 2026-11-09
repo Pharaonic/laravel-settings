@@ -75,21 +75,21 @@ dataset('type_normalizer_safeRefusals', function () {
     ];
 });
 
-test('the strict policy accepts the exact type', function (mixed $value, string $type) {
+test('the strict policy accepts the exact type', function (mixed $value, SettingType $type) {
     $this->assertSame($value, TypeNormalizer::normalize($value, $type, CastingPolicy::STRICT, 'key', 'scope'));
 })->with('type_normalizer_exact');
 
-test('the strict policy refuses every other type', function (mixed $value, string $type) {
+test('the strict policy refuses every other type', function (mixed $value, SettingType $type) {
     $this->expectException(SettingTypeMismatchException::class);
 
     TypeNormalizer::normalize($value, $type, CastingPolicy::STRICT, 'key', 'scope');
 })->with('type_normalizer_strictRefusals');
 
-test('the safe policy converts the unambiguous cases', function (mixed $value, string $type, mixed $expected) {
+test('the safe policy converts the unambiguous cases', function (mixed $value, SettingType $type, mixed $expected) {
     $this->assertSame($expected, TypeNormalizer::normalize($value, $type, CastingPolicy::SAFE, 'key', 'scope'));
 })->with('type_normalizer_safeConversions');
 
-test('the safe policy refuses the ambiguous cases', function (mixed $value, string $type) {
+test('the safe policy refuses the ambiguous cases', function (mixed $value, SettingType $type) {
     $this->expectException(SettingTypeMismatchException::class);
 
     TypeNormalizer::normalize($value, $type, CastingPolicy::SAFE, 'key', 'scope');

@@ -302,7 +302,7 @@ final class MigrateLegacySettingsCommand extends Command
 
         if ($definition === null) {
             // 1.x let every key hold null, so converted keys stay nullable.
-            return [$value, SettingType::of($value), true];
+            return [$value, SettingType::of($value)?->value, true];
         }
 
         if ($value === null) {
@@ -312,18 +312,18 @@ final class MigrateLegacySettingsCommand extends Command
                 return null;
             }
 
-            return [null, $definition->type, true];
+            return [null, $definition->type->value, true];
         }
 
         try {
             $value = TypeNormalizer::normalize($value, $definition->type, CastingPolicy::SAFE, $key, $identifier);
         } catch (InvalidArgumentException) {
-            $this->problems[] = [$id, $identifier, $key, "the value cannot be safely converted to the defined type [{$definition->type}]"];
+            $this->problems[] = [$id, $identifier, $key, "the value cannot be safely converted to the defined type [{$definition->type->value}]"];
 
             return null;
         }
 
-        return [$value, $definition->type, $definition->nullable];
+        return [$value, $definition->type->value, $definition->nullable];
     }
 
     /**

@@ -5,6 +5,7 @@ namespace Pharaonic\Laravel\Settings\Concerns;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
 use Pharaonic\Laravel\Settings\Builders\SettingBuilder;
+use Pharaonic\Laravel\Settings\Enums\SettingType;
 use Pharaonic\Laravel\Settings\Models\Setting;
 use Pharaonic\Laravel\Settings\Support\Identifier;
 use Pharaonic\Laravel\Settings\Support\ScopeCache;
@@ -66,10 +67,8 @@ trait HasSettings
 
     /**
      * Store the value of the key right away; see SettingBuilder::setValue().
-     *
-     * @param  string|null  $type  a SettingType constant
      */
-    public function setSetting(string $key, mixed $value, ?string $type = null, ?bool $nullable = null): Setting
+    public function setSetting(string $key, mixed $value, SettingType|string|null $type = null, ?bool $nullable = null): Setting
     {
         return $this->settings()->setValue($key, $value, $type, $nullable);
     }

@@ -4,6 +4,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Pharaonic\Laravel\Settings\Enums\SettingType;
 use Pharaonic\Laravel\Settings\Models\Setting;
 use Pharaonic\Laravel\Settings\Tests\Fixtures\Company;
 use Pharaonic\Laravel\Settings\Tests\Fixtures\LegacySchema;
@@ -71,7 +72,7 @@ test('apply converts side by side and keeps a backup', function () {
 
     $row = Setting::for()->where('key', 'site.name')->firstOrFail();
 
-    $this->assertSame('string', $row->type);
+    $this->assertSame(SettingType::STRING, $row->type);
     $this->assertTrue($row->nullable);
     $this->assertSame('2022-05-01 10:00:00', (string) $row->created_at);
     $this->assertSame('2022-06-01 10:00:00', (string) $row->updated_at);

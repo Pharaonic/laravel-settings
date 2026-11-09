@@ -5,7 +5,6 @@ namespace Pharaonic\Laravel\Settings\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
-use InvalidArgumentException;
 use LogicException;
 use Pharaonic\Laravel\Settings\Builders\SettingBuilder;
 use Pharaonic\Laravel\Settings\Enums\CastingPolicy;
@@ -34,7 +33,7 @@ use Throwable;
  * @property int $id
  * @property string $identifier
  * @property string $key
- * @property string|null $type
+ * @property SettingType|null $type
  * @property bool $nullable
  * @property mixed $value
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -53,17 +52,6 @@ class Setting extends Model
     public const GLOBAL = '__global__';
 
     /**
-     * The validation rule of each type.
-     */
-    private const TYPE_RULES = [
-        SettingType::STRING => 'string',
-        SettingType::INTEGER => 'integer',
-        SettingType::FLOAT => 'numeric',
-        SettingType::BOOLEAN => 'boolean',
-        SettingType::ARRAY => 'array',
-    ];
-
-    /**
      * @var array<int, string>
      */
     protected $fillable = ['identifier', 'key', 'type', 'nullable', 'value'];
@@ -73,6 +61,7 @@ class Setting extends Model
      */
     protected $casts = [
         'id' => 'integer',
+        'type' => SettingType::class,
         'nullable' => 'boolean',
     ];
 
@@ -152,13 +141,13 @@ class Setting extends Model
      * @throws SettingTypeMismatchException
      * @throws SettingDefinitionException
      */
-    public function retype(string $type, ?bool $nullable = null): static
+    public function retype(SettingType|string $type, ?bool $nullable = null): static
     {
         if (! $this->exists) {
             throw new LogicException('Only a stored setting can be retyped.');
         }
 
-        self::assertType($type);
+        $type = SettingType::parse($type);
 
         $key = $this->settingKey();
         $identifier = $this->scope();
@@ -237,23 +226,19 @@ class Setting extends Model
 
         $definition = Definition::find($key);
         $type = $this->attributes['type'] ?? null;
-        $type = is_string($type) && $type !== '' ? $type : null;
+        $type = is_string($type) && $type !== '' ? SettingType::parse($type) : null;
         $nullable = array_key_exists('nullable', $this->attributes) && $this->attributes['nullable'] !== null
             ? (bool) $this->attributes['nullable']
             : null;
         $raw = $this->attributes['value'] ?? null;
         $value = is_string($raw) ? ValueCodec::decode($raw, $key, $identifier) : null;
 
-        if ($type !== null) {
-            self::assertType($type);
-        }
-
         if ($this->exists && ! $this->retyping) {
-            $storedType = $this->getOriginal('type');
-            $storedNullable = (bool) $this->getOriginal('nullable');
+            $storedType = $this->getRawOriginal('type');
+            $storedNullable = (bool) $this->getRawOriginal('nullable');
 
-            if (is_string($storedType) && $storedType !== '' && $type !== $storedType) {
-                throw SettingTypeMismatchException::immutable($key, $identifier, 'type', $storedType, $type ?? 'null');
+            if (is_string($storedType) && $storedType !== '' && $type?->value !== $storedType) {
+                throw SettingTypeMismatchException::immutable($key, $identifier, 'type', $storedType, $type->value ?? 'null');
             }
 
             if ($nullable !== null && $nullable !== $storedNullable) {
@@ -263,7 +248,7 @@ class Setting extends Model
 
         if ($definition !== null) {
             if ($type !== null && $type !== $definition->type) {
-                throw SettingDefinitionException::conflict($key, $identifier, 'type', $type, $definition->type);
+                throw SettingDefinitionException::conflict($key, $identifier, 'type', $type->value, $definition->type->value);
             }
 
             if ($nullable !== null && $nullable !== $definition->nullable) {
@@ -294,13 +279,13 @@ class Setting extends Model
                 // The type's own rule comes first, so size rules such as max:5
                 // compare numbers as numbers and arrays by their count.
                 $rules = is_string($definition->rules) ? explode('|', $definition->rules) : $definition->rules;
-                array_unshift($rules, self::TYPE_RULES[$type]);
+                array_unshift($rules, $type->rule());
 
                 Validator::make(['value' => $value], ['value' => $rules], [], ['value' => $key])->validate();
             }
         }
 
-        $this->attributes['type'] = $type;
+        $this->attributes['type'] = $type?->value;
         $this->attributes['nullable'] = $nullable;
         $this->attributes['value'] = ValueCodec::encode($value, $key, $identifier);
     }
@@ -329,17 +314,6 @@ class Setting extends Model
         $identifier = $this->attributes['identifier'] ?? null;
 
         return is_string($identifier) ? $identifier : self::GLOBAL;
-    }
-
-    private static function assertType(string $type): void
-    {
-        if (! SettingType::isValid($type)) {
-            throw new InvalidArgumentException(sprintf(
-                'The setting type [%s] must be one of %s.',
-                $type,
-                implode(', ', SettingType::all())
-            ));
-        }
     }
 
     private static function flag(bool $value): string

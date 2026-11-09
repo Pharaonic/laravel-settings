@@ -264,7 +264,7 @@ class SettingBuilder extends Builder
             'source' => null,
             'inherited' => false,
             'is_default' => $definition !== null && $definition->hasDefault,
-            'type' => $definition !== null ? $definition->type : null,
+            'type' => $definition?->type->value,
             'nullable' => $definition !== null ? $definition->nullable : null,
         ];
     }
@@ -278,21 +278,18 @@ class SettingBuilder extends Builder
      * A stored key keeps its type and nullability: $type and $nullable must
      * match them, and changing them is retypeValue()'s job.
      *
-     * @param  string|null  $type  a SettingType constant
      *
      * @throws SettingTypeMismatchException
      * @throws UnsupportedSettingValueException
      * @throws SettingDefinitionException
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function setValue(string $key, mixed $value, ?string $type = null, ?bool $nullable = null): Setting
+    public function setValue(string $key, mixed $value, SettingType|string|null $type = null, ?bool $nullable = null): Setting
     {
         $identifier = $this->canonical();
         Identifier::key($key);
 
-        if ($type !== null && ! SettingType::isValid($type)) {
-            throw new InvalidArgumentException(sprintf('The setting type [%s] must be one of %s.', $type, implode(', ', SettingType::all())));
-        }
+        $type = $type === null ? null : SettingType::parse($type);
 
         return $this->transaction(function () use ($identifier, $key, $value, $type, $nullable): Setting {
             return $this->write($identifier, $key, $value, $type, $nullable);
@@ -346,12 +343,11 @@ class SettingBuilder extends Builder
      * Change the type and nullability of the key stored in the for() scope,
      * converting its value with the safe casting rules, under a row lock.
      *
-     * @param  string  $type  a SettingType constant
      *
      * @throws SettingTypeMismatchException when the value cannot be converted
      * @throws SettingDefinitionException when the key's definition declares other metadata
      */
-    public function retypeValue(string $key, string $type, ?bool $nullable = null): Setting
+    public function retypeValue(string $key, SettingType|string $type, ?bool $nullable = null): Setting
     {
         $identifier = $this->canonical();
         Identifier::key($key);
@@ -372,7 +368,7 @@ class SettingBuilder extends Builder
      * which, so a missing row takes no gap lock; an insert that loses the
      * race to another writer updates the row that won instead.
      */
-    private function write(string $identifier, string $key, mixed $value, ?string $type, ?bool $nullable): Setting
+    private function write(string $identifier, string $key, mixed $value, ?SettingType $type, ?bool $nullable): Setting
     {
         for ($attempt = 1; ; $attempt++) {
             if ($this->row($identifier, $key, false) === null) {
@@ -528,8 +524,8 @@ class SettingBuilder extends Builder
         $definition = Definition::find($key);
 
         if ($definition !== null) {
-            if ($row['type'] !== null && $row['type'] !== $definition->type) {
-                throw SettingDefinitionException::conflict($key, $identifier, 'type', $row['type'], $definition->type);
+            if ($row['type'] !== null && $row['type'] !== $definition->type->value) {
+                throw SettingDefinitionException::conflict($key, $identifier, 'type', $row['type'], $definition->type->value);
             }
 
             if ($row['nullable'] !== $definition->nullable) {
