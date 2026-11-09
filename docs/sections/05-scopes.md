@@ -6,7 +6,7 @@ Every setting belongs to one scope, stored in the `identifier` column.
 | --- | --- | --- |
 | Global | `settings()`, `settings(null)`, `Setting::for()` | `__global__` |
 | Named | `settings('checkout')` | `checkout` |
-| Model | `settings($company)` | `{morph class}:{key}`, such as `App\Company:12` |
+| Model | `settings($company)` | `{morph class}:{key}`, such as `App\Models\Company:12` |
 
 Scopes never share rows: the same key can hold a different value in each one, and a read only sees its own scope unless you add [fallbacks](#fallback).
 
@@ -17,7 +17,7 @@ A model scope uses the model's morph class and key, so it honors your morph map:
 ```php title="app/Providers/AppServiceProvider.php"
 use Illuminate\Database\Eloquent\Relations\Relation;
 
-Relation::morphMap(['company' => \App\Company::class]);
+Relation::morphMap(['company' => \App\Models\Company::class]);
 ```
 
 ```php

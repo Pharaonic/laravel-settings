@@ -4,8 +4,8 @@ Install the package with Composer and create its table.
 
 ### Requirements
 
-- PHP 8.0
-- Laravel 7.x
+- PHP 8.0 or 8.1
+- Laravel 8.x
 
 ### Composer Installation
 
