@@ -1,16 +1,16 @@
 <?php
 
-use Pharaonic\Laravel\Settings\Classes\Settings;
+use Illuminate\Database\Eloquent\Model;
+use Pharaonic\Laravel\Settings\Builders\SettingBuilder;
+use Pharaonic\Laravel\Settings\Models\Setting;
 
-/**
- * Getting Settings Object
- *
- * @return Pharaonic\Laravel\Settings\Classes\Settings
- */
-function settings()
-{
-    if (!app()->has('Settings'))
-        app()->instance('Settings', new Settings);
-
-    return app('Settings');
+if (! function_exists('settings')) {
+    /**
+     * The settings of a scope: Setting::for($identifier). Defined only when
+     * no other package or the application already defines settings().
+     */
+    function settings(Model|string|null $identifier = null): SettingBuilder
+    {
+        return Setting::for($identifier);
+    }
 }

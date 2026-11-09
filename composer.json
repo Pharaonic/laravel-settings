@@ -1,40 +1,96 @@
 {
-    "name": "pharaonic/laravel-settings",
-    "description": "Store and retrieve settings generally or for model objects in Laravel.",
-    "keywords": [
-        "laravel settings",
-        "settings",
-        "info",
-        "laravel",
-        "php"
-    ],
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Moamen Eltouny (Raggi)",
-            "email": "raggi@raggitech.com"
+  "name": "pharaonic/laravel-settings",
+  "description": "Typed, scoped application settings for Laravel: an Eloquent Setting model for global, named and per-model preferences, with explicit fallback, optional definitions and validation.",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "laravel",
+    "settings",
+    "preferences",
+    "eloquent",
+    "typed settings",
+    "multi-tenant",
+    "pharaonic"
+  ],
+  "authors": [
+    {
+      "name": "Moamen Eltouny (Raggi)",
+      "email": "raggigroup@gmail.com"
+    }
+  ],
+  "support": {
+    "docs": "https://pharaonic.dev/packages/laravel/settings",
+    "issues": "https://github.com/Pharaonic/laravel-settings/issues",
+    "source": "https://github.com/Pharaonic/laravel-settings"
+  },
+  "require": {
+    "php": ">=8.0 <8.1",
+    "illuminate/console": "^6.20",
+    "illuminate/container": "^6.20",
+    "illuminate/contracts": "^6.20",
+    "illuminate/database": "^6.20",
+    "illuminate/support": "^6.20",
+    "illuminate/validation": "^6.20"
+  },
+  "require-dev": {
+    "laravel/pint": "^1.5",
+    "orchestra/testbench": "^4.18",
+    "phpstan/phpstan": "^2.1",
+    "phpunit/phpunit": "^9.6.33"
+  },
+  "autoload": {
+    "psr-4": {
+      "Pharaonic\\Laravel\\Settings\\": "src/"
+    },
+    "files": [
+      "src/helpers.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Pharaonic\\Laravel\\Settings\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Pharaonic\\Laravel\\Settings\\SettingsServiceProvider"
+      ]
+    }
+  },
+  "scripts": {
+    "test": "@php vendor/bin/phpunit",
+    "analyse": "@php vendor/bin/phpstan analyse --memory-limit=1G",
+    "format": "@php vendor/bin/pint",
+    "format:check": "@php vendor/bin/pint --test",
+    "security": "@composer audit",
+    "check": [
+      "@composer validate --strict",
+      "@format:check",
+      "@analyse",
+      "@test",
+      "@security"
+    ]
+  },
+  "config": {
+    "audit": {
+      "abandoned": "report"
+    },
+    "policy": {
+      "advisories": {
+        "block": false,
+        "ignore": {
+          "laravel/framework": "No fixed release within Laravel 6; the application chooses the framework release.",
+          "league/commonmark": "No fixed release within Laravel 6; the application chooses the framework release.",
+          "league/flysystem": "No fixed release within Laravel 6; the application chooses the framework release.",
+          "symfony/http-foundation": "No fixed release within Laravel 6; the application chooses the framework release.",
+          "symfony/http-kernel": "No fixed release within Laravel 6; the application chooses the framework release.",
+          "symfony/process": "No fixed release within Laravel 6; the application chooses the framework release.",
+          "symfony/routing": "No fixed release within Laravel 6; the application chooses the framework release."
         }
-    ],
-    "require": {
-        "php": ">=7.2",
-        "laravel/framework": ">=6.0"
+      }
     },
-    "config": {
-        "sort-packages": true
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "Pharaonic\\Laravel\\Settings\\SettingsServiceProvider"
-            ]
-        }
-    },
-    "autoload": {
-        "psr-4": {
-            "Pharaonic\\Laravel\\Settings\\": "src"
-        },
-        "files": ["src/helpers.php"]
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    "sort-packages": true
+  },
+  "prefer-stable": true
 }
