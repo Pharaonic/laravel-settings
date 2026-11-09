@@ -2,8 +2,8 @@
 
 Add `HasSettings` to any Eloquent model whose records have their own settings.
 
-```php title="app/Company.php"
-namespace App;
+```php title="app/Models/Company.php"
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Pharaonic\Laravel\Settings\Concerns\HasSettings;

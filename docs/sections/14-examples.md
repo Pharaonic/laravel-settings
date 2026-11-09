@@ -24,7 +24,7 @@ $color = settings($branch)
 
 - ===Model
 
-  ```php title="app/User.php"
+  ```php title="app/Models/User.php"
   use Pharaonic\Laravel\Settings\Concerns\HasSettings;
 
   class User extends Authenticatable
@@ -78,5 +78,5 @@ If the update fails, the setting is rolled back with it, and other requests neve
 
 ```php
 dump(settings($branch)->fallbackTo($company)->fallbackToGlobal()->explainValue('theme'));
-// ['found' => true, 'source' => 'App\Company:12', 'inherited' => true, ...]
+// ['found' => true, 'source' => 'App\Models\Company:12', 'inherited' => true, ...]
 ```

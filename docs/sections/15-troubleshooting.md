@@ -18,7 +18,7 @@ A definition was added for a key that is stored with another type or nullability
 
 ### Model settings disappeared after adding a morph map
 
-The model scope is now `alias:id` instead of `App\Company:id`. Remove the alias, or rename the stored identifiers: `Setting::query()->where('identifier', 'like', 'App\Company:%')` and update them to the alias (then clear the cache).
+The model scope is now `alias:id` instead of `App\Models\Company:id`. Remove the alias, or rename the stored identifiers: `Setting::query()->where('identifier', 'like', 'App\Models\Company:%')` and update them to the alias (then clear the cache).
 
 ### `database is locked` on SQLite
 
