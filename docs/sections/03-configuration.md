@@ -29,7 +29,7 @@ return [
 | --- | --- | --- |
 | `connection` | `null` | The database connection of the table. `null` uses the default connection. |
 | `table` | `settings` | The table name. The migration and every query use it. |
-| `types.casting` | `strict` | How a value that is not already of a setting's type is handled. See [Typed Values](#typed-values). |
+| `types.casting` | `strict` | `strict` or `safe` (or a `CastingPolicy` case): how a value that is not already of a setting's type is handled. See [Typed Values](#typed-values). |
 | `cache.enabled` | `true` | Cache each scope's rows. |
 | `cache.store` | `null` | The cache store. `null` uses the default store. |
 | `cache.ttl` | `null` | Seconds an entry lives. `null` keeps it until the next write to the scope. |

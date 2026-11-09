@@ -18,10 +18,10 @@
 | `allValues()` | `array<string, mixed>` | Every stored value of the chain, the earliest scope winning, sorted by key. |
 | `allOwnValues()` | `array<string, mixed>` | Every value of the `for()` scope, sorted by key. |
 | `explainValue(string $key)` | `array` | `key`, `found`, `value`, `source`, `inherited`, `is_default`, `type`, `nullable`. |
-| `setValue(string $key, mixed $value, ?string $type = null, ?bool $nullable = null)` | `Setting` | Store the value in the `for()` scope and return the saved row. |
+| `setValue(string $key, mixed $value, SettingType\|string\|null $type = null, ?bool $nullable = null)` | `Setting` | Store the value in the `for()` scope and return the saved row. |
 | `setMany(array $values)` | `void` | Store `['key' => value, …]` in one transaction, all or nothing. |
 | `forgetValue(string $key)` | `bool` | Delete the key from the `for()` scope; `true` when a row was deleted. |
-| `retypeValue(string $key, string $type, ?bool $nullable = null)` | `Setting` | Change the stored type and nullability, converting the value with the safe rules. |
+| `retypeValue(string $key, SettingType\|string $type, ?bool $nullable = null)` | `Setting` | Change the stored type and nullability, converting the value with the safe rules. |
 
 ### Setting
 
@@ -32,8 +32,9 @@
 | `Setting::GLOBAL` | `'__global__'`, the identifier of the global scope. |
 | `Setting::for($identifier)` | A scoped `SettingBuilder`. |
 | `$setting->value` | The typed value. |
-| `$setting->identifier`, `->key`, `->type`, `->nullable` | The stored metadata. |
-| `$setting->retype(string $type, ?bool $nullable = null)` | Change type and nullability of the stored row and save it. Returns the model. |
+| `$setting->identifier`, `->key`, `->nullable` | The stored metadata. |
+| `$setting->type` | The `SettingType` case, or `null` for an untyped first `null`. |
+| `$setting->retype(SettingType\|string $type, ?bool $nullable = null)` | Change type and nullability of the stored row and save it. Returns the model. |
 
 ### HasSettings
 
@@ -43,7 +44,7 @@
 | --- | --- | --- |
 | `settings()` | `SettingBuilder` | `Setting::for($this)`. Not a relation. |
 | `getSetting(string $key, mixed $default = null)` | `mixed` | `settings()->getValue()`. |
-| `setSetting(string $key, mixed $value, ?string $type = null, ?bool $nullable = null)` | `Setting` | `settings()->setValue()`. |
+| `setSetting(string $key, mixed $value, SettingType\|string\|null $type = null, ?bool $nullable = null)` | `Setting` | `settings()->setValue()`. |
 | `hasSetting(string $key)` | `bool` | `settings()->hasValue()`. |
 | `forgetSetting(string $key)` | `bool` | `settings()->forgetValue()`. |
 | `allSettings()` | `array<string, mixed>` | `settings()->allValues()`. |
@@ -54,12 +55,16 @@
 | --- | --- | --- |
 | `settings(Model\|string\|null $identifier = null)` | `SettingBuilder` | `Setting::for($identifier)`. Defined only when no `settings()` function exists yet. |
 
-### Constants
+### Enums
 
-| Class | Constants |
+Both are string-backed; every method that takes one also accepts its value.
+
+| Enum | Cases |
 | --- | --- |
 | `Pharaonic\Laravel\Settings\Enums\SettingType` | `STRING`, `INTEGER`, `FLOAT`, `BOOLEAN`, `ARRAY` |
 | `Pharaonic\Laravel\Settings\Enums\CastingPolicy` | `STRICT`, `SAFE` |
+
+`SettingType::of($value)` returns the type of a value (or `null`), `SettingType::parse($type)` takes a case or its value and throws `InvalidArgumentException` for anything else, and `$type->rule()` is its Laravel validation rule.
 
 ### Exceptions
 

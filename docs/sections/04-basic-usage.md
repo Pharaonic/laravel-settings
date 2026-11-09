@@ -15,7 +15,7 @@ Writes go to the database right away and return the saved `Setting` row:
 ```php
 $setting = settings('checkout')->setValue('minimum', 100);
 
-$setting->type;     // "integer"
+$setting->type;     // SettingType::INTEGER
 $setting->value;    // 100
 $setting->nullable; // false
 ```
