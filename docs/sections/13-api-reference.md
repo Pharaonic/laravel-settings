@@ -67,7 +67,7 @@ All in `Pharaonic\Laravel\Settings\Exceptions`. Messages name keys, scopes and t
 
 | Exception | Extends | Thrown when |
 | --- | --- | --- |
-| `InvalidIdentifierException` | `InvalidArgumentException` | The scope is an empty or too long string, or an unsaved or keyless model. |
+| `InvalidIdentifierException` | `InvalidArgumentException` | The scope is an empty or too long string, or an unsaved or keyless model; or a model made by a scoped builder names another scope. |
 | `InvalidSettingKeyException` | `InvalidArgumentException` | The key is empty, has an empty dot segment, is too long or invalid UTF-8; or `setMany()` gets an integer key. |
 | `SettingTypeMismatchException` | `InvalidArgumentException` | A value does not match the type or nullability, or a write tries to change them. |
 | `UnsupportedSettingValueException` | `InvalidArgumentException` | The value cannot be stored at all. |

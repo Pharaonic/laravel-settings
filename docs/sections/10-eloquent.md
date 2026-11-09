@@ -45,6 +45,17 @@ $setting->save();
 Setting::create(['identifier' => 'checkout', 'key' => 'minimum', 'value' => 100]);
 ```
 
+### Creating Through a Scope
+
+A model made by a scoped builder belongs to that scope. `make()`, `create()`, `firstOrNew()`, `firstOrCreate()`, `updateOrCreate()` and `forceCreate()` all store in the `for()` scope, and an `identifier` attribute that names another scope throws `InvalidIdentifierException`, even when it is set later on the model before `save()`:
+
+```php
+$company->settings()->create(['key' => 'theme', 'value' => 'dark']);  // the company scope
+settings('checkout')->firstOrCreate(['key' => 'minimum'], ['value' => 100]);
+
+settings('tenant-a')->create(['identifier' => 'tenant-b', 'key' => 'x', 'value' => 1]); // throws
+```
+
 The type and nullability of a stored row can only change through `$setting->retype($type, $nullable)` (what `retypeValue()` calls), and its identifier and key cannot change at all.
 
 :::warning Query-builder writes bypass the package
