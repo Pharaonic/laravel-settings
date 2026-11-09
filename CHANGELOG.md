@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented here.
 
+## 9.0.0 - Unreleased
+
+First release of the Laravel 9 line, built from 8.0.0.
+
+### Compatibility
+
+- Laravel 9.33+ on PHP 8.0, 8.1 and 8.2. 9.33 is the first 9.x release that requires a Carbon release working on PHP 8.2; older releases install Carbon 2.53, which fails there.
+- The same API and behavior as 8.0.0.
+
 ## 8.0.0 - Unreleased
 
 First release of the Laravel 8 line, built from 7.0.0.
