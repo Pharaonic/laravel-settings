@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented here.
 
+## 11.0.0 - Unreleased
+
+First release of the Laravel 11 line, built from 10.0.0.
+
+### Compatibility
+
+- Laravel 11 on PHP 8.2, 8.3 and 8.4.
+- The same API and behavior as 10.0.0.
+
 ## 10.0.0 - Unreleased
 
 First release of the Laravel 10 line, built from 9.0.0.
