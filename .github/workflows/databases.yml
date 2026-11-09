@@ -1,0 +1,92 @@
+name: Databases
+
+# Runs the tests, including the concurrent-process tests, against MySQL and
+# PostgreSQL. build.yml covers SQLite on every PHP and operating system.
+on:
+  push:
+    branches:
+      - develop
+      - "[0-9]*.x"
+  pull_request:
+    branches:
+      - develop
+      - "[0-9]*.x"
+  workflow_dispatch:
+
+concurrency:
+  group: "databases-${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.database }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        database:
+          - mysql
+          - pgsql
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: secret
+          MYSQL_DATABASE: settings
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping -psecret" --health-interval=5s --health-timeout=5s --health-retries=20
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: secret
+          POSTGRES_DB: settings
+        ports:
+          - 5432:5432
+        options: --health-cmd=pg_isready --health-interval=5s --health-timeout=5s --health-retries=20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # The lowest PHP of the line, read from require.php (">=8.A <8.B").
+      - name: Read the lowest PHP
+        id: php
+        shell: bash
+        run: |
+          constraint="$(jq -r '.require.php' composer.json)"
+
+          if [[ ! "$constraint" =~ ^\>=8\.([0-9]+)\ \<8\.([0-9]+)$ ]]; then
+            echo "require.php must read \">=8.A <8.B\", got: $constraint" >&2
+            exit 1
+          fi
+
+          echo "version=8.${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ steps.php.outputs.version }}
+          extensions: pdo_mysql, pdo_pgsql
+          coverage: none
+          tools: composer:v2
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@v4
+        with:
+          dependency-versions: highest
+
+      - name: Run tests
+        env:
+          SETTINGS_TEST_DB: ${{ matrix.database }}
+          SETTINGS_TEST_DB_HOST: 127.0.0.1
+          SETTINGS_TEST_DB_PORT: ${{ matrix.database == 'mysql' && '3306' || '5432' }}
+          SETTINGS_TEST_DB_DATABASE: settings
+          SETTINGS_TEST_DB_USERNAME: ${{ matrix.database == 'mysql' && 'root' || 'postgres' }}
+          SETTINGS_TEST_DB_PASSWORD: secret
+        run: composer test
