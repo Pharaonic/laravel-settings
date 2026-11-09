@@ -8,7 +8,9 @@ Typed application settings in the global scope, named scopes, or the scope of a 
 
 ## Supported Laravel lines
 
-One branch per Laravel major, from `6.x` to the newest major. Each line's PHP range, `illuminate/*` constraint, and tools follow the Pharaonic Laravel line table. `6.x` runs PHPUnit; later lines run Pest. Releases `1.0.0`–`1.2.0` supported Laravel 6+, so the lines start at `6.x`. That is why `SettingType` and `CastingPolicy` are constants classes rather than native enums (PHP 8.0).
+One branch per Laravel major, from `6.x` to the newest major. Each line's PHP range, `illuminate/*` constraint, and tools follow the Pharaonic Laravel line table. `6.x` runs PHPUnit; later lines run Pest. Releases `1.0.0`–`1.2.0` supported Laravel 6+, so the lines start at `6.x`.
+
+`SettingType` and `CastingPolicy` are the one deliberate difference in package code between lines, decided by the maintainer on 2026-11-09: native string-backed enums from `10.x` (PHP 8.1+), and classes of string constants on `6.x`–`9.x`, whose PHP 8.0 has no enums. The case names, stored values, and accepted strings are the same everywhere, so `SettingType::INTEGER` and `'integer'` work on every line. What differs is what PHP sees: on `10.x`+ `$setting->type` is a `SettingType` case (an Eloquent enum cast) and type parameters are `SettingType|string`; below it is a string. A fix touching types is ported with this difference in mind.
 
 ## Core library
 
@@ -26,7 +28,7 @@ Configuration keys (`pharaonic.settings.*`), publish tags, and registered Blade,
 - `getValue()` falls back only through `fallbackTo()` scopes, in order; `fallbackToGlobal()` is `fallbackTo(null)`. A stored `null` stops the fallback. When no scope stores the key: the caller's default (closures are called), else the definition's default, else `null`.
 - `explainValue()` returns exactly `key`, `found`, `value`, `source`, `inherited`, `is_default`, `type`, `nullable`.
 - Values are JSON (`JSON_PRESERVE_ZERO_FRACTION`): null, bool, int, finite float, UTF-8 string, and arrays of them, up to 63 levels. JSON objects come back as arrays. Exception messages name the key, the scope, and types, never the value.
-- A stored row's type and nullability change only through `retypeValue()` or `Setting::retype()`. Type names: `string`, `integer`, `float`, `boolean`, `array`. A first `null` is stored with type `NULL` and `nullable` true.
+- A stored row's type and nullability change only through `retypeValue()` or `Setting::retype()`. `$setting->type` returns the `SettingType` case (`null` for an untyped first `null`); the `type` column stores its value. Type names: `string`, `integer`, `float`, `boolean`, `array`. A first `null` is stored with type `NULL` and `nullable` true.
 - The `safe` policy converts exactly the cases in `TypeNormalizer`; widening them is a behavior change.
 - Configuration: `pharaonic.settings.connection`, `.table`, `.types.casting`, `.cache.enabled`, `.cache.store`, `.cache.ttl`, `.models.purge_on_force_delete`, and `.definitions`, with the `SETTINGS_DB_CONNECTION`, `SETTINGS_DB_TABLE`, `SETTINGS_CACHE`, and `SETTINGS_CACHE_STORE` environment variables.
 - Definition options: `type` (required), `nullable`, `default`, `casting`, `rules`. `encrypted` is refused until encryption ships; any other option is refused.

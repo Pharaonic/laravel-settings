@@ -112,7 +112,7 @@ test('retype value changes the type and converts the value', function () {
 
     $setting = settings()->retypeValue('limit', SettingType::INTEGER);
 
-    $this->assertSame('integer', $setting->type);
+    $this->assertSame(SettingType::INTEGER, $setting->type);
     $this->assertSame(20, $setting->value);
     $this->assertSame(20, settings()->getValue('limit'));
 
@@ -127,7 +127,7 @@ test('a retype that cannot convert leaves the row unchanged', function () {
     settings()->setValue('label', 'twenty');
 
     $this->assertThrowsException(fn () => settings()->retypeValue('label', SettingType::INTEGER), SettingTypeMismatchException::class);
-    $this->assertSame('string', Setting::for()->where('key', 'label')->value('type'));
+    $this->assertSame(SettingType::STRING, Setting::for()->where('key', 'label')->value('type'));
     $this->assertSame('twenty', settings()->getValue('label'));
 
     settings()->setValue('optional', null);

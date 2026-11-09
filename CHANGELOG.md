@@ -2,6 +2,23 @@
 
 All notable changes to this project are documented here.
 
+## 10.0.0 - Unreleased
+
+First release of the Laravel 10 line, built from 9.0.0.
+
+### Changed
+
+- `SettingType` and `CastingPolicy` are native string-backed enums, with the same case names and values. Every method that takes a type (`setValue()`, `retypeValue()`, `Setting::retype()`, `setSetting()`) accepts the case or its value, and definitions and `pharaonic.settings.types.casting` accept the cases too.
+
+### Behavior Changes from 9.0.0
+
+- `$setting->type` returns a `SettingType` case instead of a string (`null` is unchanged). Compare it with `SettingType::INTEGER`, or read `$setting->type->value`. The stored column and `explainValue()['type']` stay strings.
+- `SettingType::all()` and `isValid()`, and `CastingPolicy::isValid()`, are replaced by the native `cases()` and `tryFrom()`. `SettingType::of()` returns a case instead of a string; `SettingType::parse()` and `rule()` are new.
+
+### Compatibility
+
+- Laravel 10 on PHP 8.1, 8.2 and 8.3.
+
 ## 9.0.0 - Unreleased
 
 First release of the Laravel 9 line, built from 8.0.0.

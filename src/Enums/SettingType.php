@@ -3,63 +3,61 @@
 namespace Pharaonic\Laravel\Settings\Enums;
 
 /**
- * The types a setting can have. A constants class rather than a native enum,
- * because the package runs on PHP 8.0; pass the constants or their strings.
+ * The types a setting can have, stored in the `type` column by value.
  */
-final class SettingType
+enum SettingType: string
 {
-    public const STRING = 'string';
-
-    public const INTEGER = 'integer';
-
-    public const FLOAT = 'float';
-
-    public const BOOLEAN = 'boolean';
-
-    public const ARRAY = 'array';
-
-    private function __construct()
-    {
-    }
-
-    /**
-     * @return list<string>
-     */
-    public static function all(): array
-    {
-        return [self::STRING, self::INTEGER, self::FLOAT, self::BOOLEAN, self::ARRAY];
-    }
-
-    public static function isValid(string $type): bool
-    {
-        return in_array($type, self::all(), true);
-    }
+    case STRING = 'string';
+    case INTEGER = 'integer';
+    case FLOAT = 'float';
+    case BOOLEAN = 'boolean';
+    case ARRAY = 'array';
 
     /**
      * The type of a value about to be stored, or null for null.
      */
-    public static function of(mixed $value): ?string
+    public static function of(mixed $value): ?self
     {
-        if (is_bool($value)) {
-            return self::BOOLEAN;
+        return match (true) {
+            is_bool($value) => self::BOOLEAN,
+            is_int($value) => self::INTEGER,
+            is_float($value) => self::FLOAT,
+            is_string($value) => self::STRING,
+            is_array($value) => self::ARRAY,
+            default => null,
+        };
+    }
+
+    /**
+     * The type named by a case or its value.
+     *
+     * @throws \InvalidArgumentException for an unknown name
+     */
+    public static function parse(self|string $type): self
+    {
+        if ($type instanceof self) {
+            return $type;
         }
 
-        if (is_int($value)) {
-            return self::INTEGER;
-        }
+        return self::tryFrom($type) ?? throw new \InvalidArgumentException(sprintf(
+            'The setting type [%s] must be one of %s.',
+            $type,
+            implode(', ', array_map(fn (self $case): string => $case->value, self::cases()))
+        ));
+    }
 
-        if (is_float($value)) {
-            return self::FLOAT;
-        }
-
-        if (is_string($value)) {
-            return self::STRING;
-        }
-
-        if (is_array($value)) {
-            return self::ARRAY;
-        }
-
-        return null;
+    /**
+     * The Laravel validation rule of the type, added before a definition's
+     * rules so size rules compare numbers as numbers.
+     */
+    public function rule(): string
+    {
+        return match ($this) {
+            self::STRING => 'string',
+            self::INTEGER => 'integer',
+            self::FLOAT => 'numeric',
+            self::BOOLEAN => 'boolean',
+            self::ARRAY => 'array',
+        };
     }
 }

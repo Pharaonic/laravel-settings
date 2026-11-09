@@ -20,10 +20,10 @@ Settings work without definitions. For important keys, a definition fixes the ty
 
 | Option | Required | Description |
 | --- | --- | --- |
-| `type` | yes | `string`, `integer`, `float`, `boolean` or `array`. |
+| `type` | yes | A `SettingType` case, or its value: `string`, `integer`, `float`, `boolean` or `array`. |
 | `nullable` | no | Default `false`. |
 | `default` | no | Returned when no scope stores the key. Must be of `type` (or `null` when nullable). Never written to the table. |
-| `casting` | no | `strict` or `safe`; overrides `types.casting` for this key. |
+| `casting` | no | A `CastingPolicy` case, or `strict` or `safe`; overrides `types.casting` for this key. |
 | `rules` | no | Laravel validation rules, as an array or a `|` string. |
 
 Definition keys are the exact setting keys, so write them as literal array keys, not nested arrays.

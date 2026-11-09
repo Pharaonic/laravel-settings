@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Validation\ValidationException;
+use Pharaonic\Laravel\Settings\Enums\SettingType;
 use Pharaonic\Laravel\Settings\Exceptions\SettingDefinitionException;
 use Pharaonic\Laravel\Settings\Exceptions\SettingTypeMismatchException;
 use Pharaonic\Laravel\Settings\Models\Setting;
@@ -70,7 +71,7 @@ test('a stored null wins over the default', function () {
 test('the definition type applies in every scope', function () {
     $company = Company::create();
 
-    $this->assertSame('float', settings()->setValue('checkout.minimum_order', 10.5)->type);
+    $this->assertSame(SettingType::FLOAT, settings()->setValue('checkout.minimum_order', 10.5)->type);
     $this->assertSame(12.5, settings('checkout')->setValue('checkout.minimum_order', '12.5')->value);
     $this->assertSame(3.0, settings($company)->setValue('checkout.minimum_order', 3)->value);
     $this->assertThrowsException(fn () => settings($company)->setValue('notifications.email', 'true'), SettingTypeMismatchException::class);

@@ -63,7 +63,7 @@ test('simultaneous writes of two types leave one stable type', function () {
     }
 
     $results = concurrency_race($this, $env, 'promoted', $values);
-    $type = Setting::query()->where('key', 'promoted')->value('type');
+    $type = Setting::query()->where('key', 'promoted')->value('type')?->value;
     $winners = array_filter($results, function (string $result) {
         return $result !== 'mismatch';
     });

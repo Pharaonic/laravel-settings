@@ -21,14 +21,13 @@ final class Definition
      */
     private function __construct(
         public string $key,
-        public string $type,
+        public SettingType $type,
         public bool $nullable,
         public bool $hasDefault,
         public mixed $default,
-        public ?string $casting,
+        public ?CastingPolicy $casting,
         public array|string $rules,
-    ) {
-    }
+    ) {}
 
     /**
      * The definition of the key, or null when it has none.
@@ -50,9 +49,10 @@ final class Definition
         }
 
         $type = $definition['type'] ?? null;
+        $type = $type instanceof SettingType ? $type : (is_string($type) ? SettingType::tryFrom($type) : null);
 
-        if (! is_string($type) || ! SettingType::isValid($type)) {
-            throw SettingDefinitionException::invalid($key, 'type must be one of '.implode(', ', SettingType::all()));
+        if ($type === null) {
+            throw SettingDefinitionException::invalid($key, 'type must be one of '.implode(', ', array_column(SettingType::cases(), 'value')));
         }
 
         $nullable = $definition['nullable'] ?? false;
@@ -63,8 +63,12 @@ final class Definition
 
         $casting = $definition['casting'] ?? null;
 
-        if ($casting !== null && (! is_string($casting) || ! CastingPolicy::isValid($casting))) {
-            throw SettingDefinitionException::invalid($key, 'casting must be strict or safe');
+        if ($casting !== null) {
+            $casting = $casting instanceof CastingPolicy ? $casting : (is_string($casting) ? CastingPolicy::tryFrom($casting) : null);
+
+            if ($casting === null) {
+                throw SettingDefinitionException::invalid($key, 'casting must be strict or safe');
+            }
         }
 
         $rules = $definition['rules'] ?? [];
@@ -96,7 +100,7 @@ final class Definition
                 try {
                     $default = TypeNormalizer::normalize($default, $type, CastingPolicy::STRICT, $key, 'definition');
                 } catch (SettingTypeMismatchException) {
-                    throw SettingDefinitionException::invalid($key, "the default is not of type {$type}");
+                    throw SettingDefinitionException::invalid($key, "the default is not of type {$type->value}");
                 }
             }
         }
@@ -107,15 +111,16 @@ final class Definition
     /**
      * The casting policy of a key: its definition's, then the configured one.
      */
-    public static function policy(?self $definition): string
+    public static function policy(?self $definition): CastingPolicy
     {
         if ($definition !== null && $definition->casting !== null) {
             return $definition->casting;
         }
 
-        $policy = Config::get('pharaonic.settings.types.casting', CastingPolicy::STRICT);
+        $policy = Config::get('pharaonic.settings.types.casting', 'strict');
+        $policy = $policy instanceof CastingPolicy ? $policy : (is_string($policy) ? CastingPolicy::tryFrom($policy) : null);
 
-        if (! is_string($policy) || ! CastingPolicy::isValid($policy)) {
+        if ($policy === null) {
             throw new SettingDefinitionException('The pharaonic.settings.types.casting option must be strict or safe.');
         }
 

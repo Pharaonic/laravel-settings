@@ -10,6 +10,4 @@ use LogicException;
  * constraints such as where(), join(), limit() or select() that the value
  * methods would otherwise ignore.
  */
-final class UnscopedSettingQueryException extends LogicException
-{
-}
+final class UnscopedSettingQueryException extends LogicException {}

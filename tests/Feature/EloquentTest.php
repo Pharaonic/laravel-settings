@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Eloquent\Collection;
 use Pharaonic\Laravel\Settings\Builders\SettingBuilder;
+use Pharaonic\Laravel\Settings\Enums\SettingType;
 use Pharaonic\Laravel\Settings\Exceptions\SettingTypeMismatchException;
 use Pharaonic\Laravel\Settings\Exceptions\UnscopedSettingQueryException;
 use Pharaonic\Laravel\Settings\Models\Setting;
@@ -54,7 +55,7 @@ test('the model returns the typed value and the attributes hold the json', funct
 
     $this->assertSame(3, $row->value);
     $this->assertSame('3', $row->getAttributes()['value']);
-    $this->assertSame('integer', $row->type);
+    $this->assertSame(SettingType::INTEGER, $row->type);
     $this->assertFalse($row->nullable);
 });
 
@@ -152,7 +153,7 @@ test('native saves are validated like set value', function () {
 test('settings can be created through the model', function () {
     $setting = Setting::create(['identifier' => 'models', 'key' => 'flag', 'value' => true]);
 
-    $this->assertSame('boolean', $setting->type);
+    $this->assertSame(SettingType::BOOLEAN, $setting->type);
     $this->assertFalse($setting->nullable);
     $this->assertTrue(Setting::for('models')->getValue('flag'));
     $this->assertSame(Setting::GLOBAL, Setting::create(['key' => 'global.flag', 'value' => false])->identifier);

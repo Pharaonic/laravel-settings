@@ -22,7 +22,7 @@ if ((float) $start > microtime(true)) {
 }
 
 try {
-    echo settings()->setValue($key, $kind === 'int' ? (int) $value : $value)->type;
+    echo settings()->setValue($key, $kind === 'int' ? (int) $value : $value)->type?->value;
 } catch (SettingTypeMismatchException $exception) {
     echo 'mismatch';
 }

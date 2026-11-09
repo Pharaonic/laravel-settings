@@ -2,7 +2,7 @@
 
 Every row stores a `type` and a `nullable` flag next to its value.
 
-| Type | PHP value | Constant |
+| Type | PHP value | Enum case |
 | --- | --- | --- |
 | `string` | `string` | `SettingType::STRING` |
 | `integer` | `int` | `SettingType::INTEGER` |
@@ -10,7 +10,17 @@ Every row stores a `type` and a `nullable` flag next to its value.
 | `boolean` | `bool` | `SettingType::BOOLEAN` |
 | `array` | `array` of the above, nested up to 63 levels | `SettingType::ARRAY` |
 
-`SettingType` (`Pharaonic\Laravel\Settings\Enums\SettingType`) is a class of string constants, so you can pass either the constant or its string.
+`Pharaonic\Laravel\Settings\Enums\SettingType` is a string-backed enum. Every method that takes a type accepts the case or its value (`SettingType::INTEGER` or `'integer'`), and `$setting->type` returns the case:
+
+```php
+$setting = settings()->setValue('count', 20);
+
+$setting->type;                            // SettingType::INTEGER
+$setting->type === SettingType::INTEGER;   // true
+$setting->getAttributes()['type'];         // "integer", the stored value
+```
+
+An untyped first `null` has `null` as its type.
 
 ### How a New Setting Gets Its Type
 
