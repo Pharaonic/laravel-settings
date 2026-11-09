@@ -1,0 +1,21 @@
+- Getting Started
+  - [Overview](#overview)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+- Usage
+  - [Basic Usage](#basic-usage)
+  - [Scopes](#scopes)
+  - [HasSettings](#has-settings)
+  - [Typed Values](#typed-values)
+  - [Definitions and Validation](#definitions)
+  - [Fallback](#fallback)
+  - [Eloquent Model](#eloquent)
+  - [Caching](#caching)
+  - [Upgrading from 1.x](#upgrading)
+- API Reference
+  - [Reference](#api-reference)
+- Examples
+  - [Use Cases](#examples)
+  - [Troubleshooting](#troubleshooting)
+- Community
+  - [Contributors](#contributors)
