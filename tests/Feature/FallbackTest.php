@@ -165,3 +165,84 @@ test('the chain stays on its own builder', function () {
 
     $this->assertSame('none', settings($this->branch)->getValue('theme', 'none'));
 });
+
+test('missing null false and zero resolve separately', function () {
+    $falsy = ['null' => null, 'false' => false, 'zero' => 0, 'float_zero' => 0.0, 'empty_string' => '', 'string_zero' => '0', 'empty_array' => []];
+
+    foreach (array_keys($falsy) as $key) {
+        settings()->setValue($key, 'global');
+    }
+
+    settings()->setValue('missing', 'global');
+
+    foreach ($falsy as $key => $value) {
+        settings($this->company)->setValue($key, $value);
+    }
+
+    foreach ($falsy as $key => $value) {
+        $this->assertSame($value, fallback_chain($this)->getValue($key, 'default'), $key);
+        $this->assertSame($value, fallback_chain($this)->getValue($key, fn () => 'default'), $key);
+        $this->assertTrue(fallback_chain($this)->hasValue($key), $key);
+
+        $explained = fallback_chain($this)->explainValue($key);
+
+        $this->assertTrue($explained['found'], $key);
+        $this->assertSame($value, $explained['value'], $key);
+        $this->assertSame(Company::class.':'.$this->company->getKey(), $explained['source'], $key);
+        $this->assertFalse($explained['is_default'], $key);
+    }
+
+    $this->assertSame('global', fallback_chain($this)->getValue('missing', 'default'));
+    $this->assertSame(Setting::GLOBAL, fallback_chain($this)->explainValue('missing')['source']);
+    $this->assertSame('default', fallback_chain($this)->getValue('nowhere', 'default'));
+    $this->assertFalse(fallback_chain($this)->hasValue('nowhere'));
+
+    $all = fallback_chain($this)->allValues();
+
+    foreach ($falsy as $key => $value) {
+        $this->assertArrayHasKey($key, $all);
+        $this->assertSame($value, $all[$key], $key);
+    }
+
+    $this->assertSame('global', $all['missing']);
+    $this->assertArrayNotHasKey('nowhere', $all);
+});
+
+test('a stored false or zero keeps the definition default away', function () {
+    config(['pharaonic.settings.definitions' => [
+        'flag' => ['type' => 'boolean', 'default' => true],
+        'limit' => ['type' => 'integer', 'default' => 10],
+        'note' => ['type' => 'string', 'nullable' => true, 'default' => 'fallback'],
+    ]]);
+
+    $this->assertTrue(fallback_chain($this)->getValue('flag'));
+    $this->assertSame(10, fallback_chain($this)->getValue('limit'));
+    $this->assertSame('fallback', fallback_chain($this)->getValue('note'));
+
+    settings($this->company)->setValue('flag', false);
+    settings($this->company)->setValue('limit', 0);
+    settings($this->company)->setValue('note', null);
+
+    $this->assertFalse(fallback_chain($this)->getValue('flag'));
+    $this->assertSame(0, fallback_chain($this)->getValue('limit'));
+    $this->assertNull(fallback_chain($this)->getValue('note'));
+    $this->assertFalse(fallback_chain($this)->explainValue('flag')['is_default']);
+    $this->assertSame(0, fallback_chain($this)->explainValue('limit')['value']);
+    $this->assertTrue(fallback_chain($this)->explainValue('note')['found']);
+});
+
+test('the trait keeps missing null false and zero apart', function () {
+    $this->company->setSetting('null', null);
+    $this->company->setSetting('false', false);
+    $this->company->setSetting('zero', 0);
+
+    $this->assertNull($this->company->getSetting('null', 'default'));
+    $this->assertFalse($this->company->getSetting('false', 'default'));
+    $this->assertSame(0, $this->company->getSetting('zero', 'default'));
+    $this->assertSame('default', $this->company->getSetting('missing', 'default'));
+
+    $this->assertTrue($this->company->hasSetting('null'));
+    $this->assertTrue($this->company->hasSetting('false'));
+    $this->assertTrue($this->company->hasSetting('zero'));
+    $this->assertFalse($this->company->hasSetting('missing'));
+});
