@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here.
 
-## 7.0.0 - Unreleased
+## 7.0.0 - 2026-11-10
 
 First release of the Laravel 7 line, built from 6.0.0.
 
@@ -11,7 +11,7 @@ First release of the Laravel 7 line, built from 6.0.0.
 - Laravel 7.30+ on PHP 8.0.
 - The same API and behavior as 6.0.0.
 
-## 6.0.0 - Unreleased
+## 6.0.0 - 2026-11-10
 
 A rewrite. The 1.x classes are removed, and a 1.x table is converted with `php artisan settings:migrate-legacy`.
 
