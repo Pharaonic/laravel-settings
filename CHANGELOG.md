@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented here.
 
+## 12.0.0 - Unreleased
+
+First release of the Laravel 12 line, built from 11.0.0.
+
+### Compatibility
+
+- Laravel 12 on PHP 8.2, 8.3, 8.4 and 8.5.
+- The same API and behavior as 11.0.0.
+
 ## 11.0.0 - Unreleased
 
 First release of the Laravel 11 line, built from 10.0.0.
