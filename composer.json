@@ -24,20 +24,20 @@
     "source": "https://github.com/Pharaonic/laravel-settings"
   },
   "require": {
-    "php": ">=8.2 <8.5",
-    "illuminate/console": "^11.0",
-    "illuminate/container": "^11.0",
-    "illuminate/contracts": "^11.0",
-    "illuminate/database": "^11.0",
-    "illuminate/support": "^11.0",
-    "illuminate/validation": "^11.0"
+    "php": ">=8.2 <8.6",
+    "illuminate/console": "^12.0",
+    "illuminate/container": "^12.0",
+    "illuminate/contracts": "^12.0",
+    "illuminate/database": "^12.0",
+    "illuminate/support": "^12.0",
+    "illuminate/validation": "^12.0"
   },
   "require-dev": {
     "laravel/pint": "^1.20",
-    "orchestra/testbench": "^9.0",
-    "pestphp/pest": "^3.8",
-    "phpstan/phpstan": "^2.1",
-    "phpunit/phpunit": "^11.5.50"
+    "orchestra/testbench": "^10.0",
+    "pestphp/pest": "^3.8 || ^4.0",
+    "phpstan/phpstan": "^2.1.33",
+    "phpunit/phpunit": "^11.5.50 || ^12.5.8"
   },
   "autoload": {
     "psr-4": {
@@ -82,10 +82,7 @@
     },
     "policy": {
       "advisories": {
-        "block": false,
-        "ignore": {
-          "laravel/framework": "No fixed release within Laravel 11; the application chooses the framework release."
-        }
+        "block": false
       }
     },
     "sort-packages": true
