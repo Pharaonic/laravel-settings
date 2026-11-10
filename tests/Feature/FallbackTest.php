@@ -189,4 +189,90 @@ final class FallbackTest extends TestCase
 
         $this->assertSame('none', settings($this->branch)->getValue('theme', 'none'));
     }
+
+    public function test_missing_null_false_and_zero_resolve_separately(): void
+    {
+        $falsy = ['null' => null, 'false' => false, 'zero' => 0, 'float_zero' => 0.0, 'empty_string' => '', 'string_zero' => '0', 'empty_array' => []];
+
+        foreach (array_keys($falsy) as $key) {
+            settings()->setValue($key, 'global');
+        }
+
+        settings()->setValue('missing', 'global');
+
+        foreach ($falsy as $key => $value) {
+            settings($this->company)->setValue($key, $value);
+        }
+
+        foreach ($falsy as $key => $value) {
+            $this->assertSame($value, $this->chain()->getValue($key, 'default'), $key);
+            $this->assertSame($value, $this->chain()->getValue($key, function () {
+                return 'default';
+            }), $key);
+            $this->assertTrue($this->chain()->hasValue($key), $key);
+
+            $explained = $this->chain()->explainValue($key);
+
+            $this->assertTrue($explained['found'], $key);
+            $this->assertSame($value, $explained['value'], $key);
+            $this->assertSame(Company::class.':'.$this->company->getKey(), $explained['source'], $key);
+            $this->assertFalse($explained['is_default'], $key);
+        }
+
+        $this->assertSame('global', $this->chain()->getValue('missing', 'default'));
+        $this->assertSame(Setting::GLOBAL, $this->chain()->explainValue('missing')['source']);
+        $this->assertSame('default', $this->chain()->getValue('nowhere', 'default'));
+        $this->assertFalse($this->chain()->hasValue('nowhere'));
+
+        $all = $this->chain()->allValues();
+
+        foreach ($falsy as $key => $value) {
+            $this->assertArrayHasKey($key, $all);
+            $this->assertSame($value, $all[$key], $key);
+        }
+
+        $this->assertSame('global', $all['missing']);
+        $this->assertArrayNotHasKey('nowhere', $all);
+    }
+
+    public function test_a_stored_false_or_zero_keeps_the_definition_default_away(): void
+    {
+        config(['pharaonic.settings.definitions' => [
+            'flag' => ['type' => 'boolean', 'default' => true],
+            'limit' => ['type' => 'integer', 'default' => 10],
+            'note' => ['type' => 'string', 'nullable' => true, 'default' => 'fallback'],
+        ]]);
+
+        $this->assertTrue($this->chain()->getValue('flag'));
+        $this->assertSame(10, $this->chain()->getValue('limit'));
+        $this->assertSame('fallback', $this->chain()->getValue('note'));
+
+        settings($this->company)->setValue('flag', false);
+        settings($this->company)->setValue('limit', 0);
+        settings($this->company)->setValue('note', null);
+
+        $this->assertFalse($this->chain()->getValue('flag'));
+        $this->assertSame(0, $this->chain()->getValue('limit'));
+        $this->assertNull($this->chain()->getValue('note'));
+        $this->assertFalse($this->chain()->explainValue('flag')['is_default']);
+        $this->assertSame(0, $this->chain()->explainValue('limit')['value']);
+        $this->assertTrue($this->chain()->explainValue('note')['found']);
+    }
+
+    public function test_the_trait_keeps_missing_null_false_and_zero_apart(): void
+    {
+        $this->company->setSetting('null', null);
+        $this->company->setSetting('false', false);
+        $this->company->setSetting('zero', 0);
+
+        $this->assertNull($this->company->getSetting('null', 'default'));
+        $this->assertFalse($this->company->getSetting('false', 'default'));
+        $this->assertSame(0, $this->company->getSetting('zero', 'default'));
+        $this->assertSame('default', $this->company->getSetting('missing', 'default'));
+
+        $this->assertTrue($this->company->hasSetting('null'));
+        $this->assertTrue($this->company->hasSetting('false'));
+        $this->assertTrue($this->company->hasSetting('zero'));
+        $this->assertFalse($this->company->hasSetting('missing'));
+    }
 }

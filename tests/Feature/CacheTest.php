@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Pharaonic\Laravel\Settings\Models\Setting;
 use Pharaonic\Laravel\Settings\Support\ScopeCache;
+use Pharaonic\Laravel\Settings\Tests\Fixtures\Branch;
 use Pharaonic\Laravel\Settings\Tests\Fixtures\Company;
 use Pharaonic\Laravel\Settings\Tests\TestCase;
 use ReflectionMethod;
@@ -290,5 +291,75 @@ final class CacheTest extends TestCase
         return function () use ($key) {
             return Cache::get($key);
         };
+    }
+
+    public function test_a_company_change_reaches_every_cached_branch_chain(): void
+    {
+        $company = Company::create();
+        $branches = [Branch::create(), Branch::create()];
+        $chain = function (Branch $branch) use ($company) {
+            return settings($branch)->fallbackTo($company)->fallbackToGlobal();
+        };
+        $read = function () use ($branches, $chain): array {
+            return array_map(function (Branch $branch) use ($chain) {
+                return $chain($branch)->getValue('limit', 'default');
+            }, $branches);
+        };
+
+        settings()->setValue('limit', 100);
+        settings($company)->setValue('limit', 50, 'integer', true);
+        settings($branches[1])->setValue('other', 'kept');
+
+        $this->assertSame([50, 50], $read());
+        $this->assertSame(0, $this->countQueries($read));
+
+        settings($company)->setValue('limit', 0);
+
+        // Only the company scope is read again; the branch scopes stay cached.
+        $this->assertSame(1, $this->countQueries(function () use ($read) {
+            $this->assertSame([0, 0], $read());
+        }));
+
+        settings($company)->setValue('limit', null);
+        $this->assertSame([null, null], $read());
+
+        settings($company)->forgetValue('limit');
+        $this->assertSame([100, 100], $read());
+
+        settings($company)->setValue('limit', 25);
+        $this->assertSame([25, 25], $read());
+
+        $row = Setting::for($company)->where('key', 'limit')->firstOrFail();
+        $row->value = 30;
+        $row->save();
+        $this->assertSame([30, 30], $read());
+
+        $company->setSetting('limit', 40);
+        $this->assertSame([40, 40], $read());
+
+        settings($branches[0])->setValue('limit', 5);
+        settings($company)->setValue('limit', 60);
+        $this->assertSame([5, 60], $read());
+        $this->assertSame('kept', $chain($branches[1])->getValue('other'));
+    }
+
+    public function test_a_company_change_inside_a_transaction_reaches_cached_branches_after_the_commit(): void
+    {
+        $company = Company::create();
+        $branch = Branch::create();
+        $chain = function () use ($company, $branch) {
+            return settings($branch)->fallbackTo($company)->fallbackToGlobal();
+        };
+
+        settings($company)->setValue('enabled', true);
+        $this->assertTrue($chain()->getValue('enabled'));
+
+        DB::transaction(function () use ($company, $chain) {
+            settings($company)->setValue('enabled', false);
+
+            $this->assertFalse($chain()->getValue('enabled'));
+        });
+
+        $this->assertFalse($chain()->getValue('enabled'));
     }
 }
