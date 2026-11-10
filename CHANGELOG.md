@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here.
 
-## 11.0.0 - Unreleased
+## 11.0.0 - 2026-11-10
 
 First release of the Laravel 11 line, built from 10.0.0.
 
@@ -11,7 +11,7 @@ First release of the Laravel 11 line, built from 10.0.0.
 - Laravel 11 on PHP 8.2, 8.3 and 8.4.
 - The same API and behavior as 10.0.0.
 
-## 10.0.0 - Unreleased
+## 10.0.0 - 2026-11-10
 
 First release of the Laravel 10 line, built from 9.0.0.
 
@@ -28,7 +28,7 @@ First release of the Laravel 10 line, built from 9.0.0.
 
 - Laravel 10 on PHP 8.1, 8.2 and 8.3.
 
-## 9.0.0 - Unreleased
+## 9.0.0 - 2026-11-10
 
 First release of the Laravel 9 line, built from 8.0.0.
 
@@ -37,7 +37,7 @@ First release of the Laravel 9 line, built from 8.0.0.
 - Laravel 9.33+ on PHP 8.0, 8.1 and 8.2. 9.33 is the first 9.x release that requires a Carbon release working on PHP 8.2; older releases install Carbon 2.53, which fails there.
 - The same API and behavior as 8.0.0.
 
-## 8.0.0 - Unreleased
+## 8.0.0 - 2026-11-10
 
 First release of the Laravel 8 line, built from 7.0.0.
 
@@ -46,7 +46,7 @@ First release of the Laravel 8 line, built from 7.0.0.
 - Laravel 8.75+ on PHP 8.0 and 8.1.
 - The same API and behavior as 7.0.0.
 
-## 7.0.0 - Unreleased
+## 7.0.0 - 2026-11-10
 
 First release of the Laravel 7 line, built from 6.0.0.
 
@@ -55,7 +55,7 @@ First release of the Laravel 7 line, built from 6.0.0.
 - Laravel 7.30+ on PHP 8.0.
 - The same API and behavior as 6.0.0.
 
-## 6.0.0 - Unreleased
+## 6.0.0 - 2026-11-10
 
 A rewrite. The 1.x classes are removed, and a 1.x table is converted with `php artisan settings:migrate-legacy`.
 
