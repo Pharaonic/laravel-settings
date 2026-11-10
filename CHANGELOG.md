@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented here.
 
+## 13.0.0 - Unreleased
+
+First release of the Laravel 13 line, built from 12.0.0.
+
+### Compatibility
+
+- Laravel 13 on PHP 8.3, 8.4 and 8.5.
+- The same API and behavior as 12.0.0.
+
 ## 12.0.0 - Unreleased
 
 First release of the Laravel 12 line, built from 11.0.0.
