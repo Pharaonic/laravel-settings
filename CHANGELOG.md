@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here.
 
-## 6.0.0 - Unreleased
+## 6.0.0 - 2026-11-10
 
 A rewrite. The 1.x classes are removed, and a 1.x table is converted with `php artisan settings:migrate-legacy`.
 
